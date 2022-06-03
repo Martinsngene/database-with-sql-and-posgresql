@@ -21,6 +21,8 @@ class Todo(db.Model):
 # note: more conventionally, we would write a
 # POST endpoint to /todos for the create endpoint:
 # @app.route('/todos', method=['POST'])
+
+# Route to Create an item
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
   error = False
@@ -44,6 +46,7 @@ def create_todo():
   else:
     return jsonify(body)
 
+# Route to Update an item by id
 @app.route('/todos/<todo_id>/set-completed', methods=['POST'])
 def set_completed_todo(todo_id):
   try:
@@ -58,11 +61,24 @@ def set_completed_todo(todo_id):
     db.session.close()
   return redirect(url_for('index'))
 
+# Route to Delete an item by id
+@app.route('/todos/<todo_id>', methods=['DELETE'])
+def delete_todo(todo_id):
+  try:
+    Todo.query.filter_by(id=todo_id).delete()
+    db.session.commit()
+  except:
+    db.session.rollback()
+  finally:
+    db.session.close()
+  return jsonify({ 'success': True })
+  
+# Route that redirects to show the view which is the homepage
 @app.route('/')
 def index():
   return render_template('index.html', todos=Todo.query.order_by('id').all())
 
-
+# The server, use 'python app.py' to start in cmd. Note you must be in the directory containing app.py
 if __name__ == '__main__':
   app.debug = True
   app.run(host='0.0.0.0', port=3000)

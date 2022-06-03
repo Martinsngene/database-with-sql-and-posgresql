@@ -13,6 +13,8 @@
       }
       li {
         clear: both;
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
       }
       li button {
         -webkit-appearance: none;
@@ -63,11 +65,13 @@
             %}
           />
           {{ todo.description }}
+          <button class="delete-button" data-id="{{ todo.id }}">&cross;</button>
         </li>
         {% endfor %}
       </ul>
     </div>
     <script>
+      // Update an item
       const checkboxes = document.querySelectorAll(".check-completed");
       for (let i = 0; i < checkboxes.length; i++) {
         const checkbox = checkboxes[i];
@@ -91,6 +95,19 @@
             });
         };
       }
+      // Delete an item
+      const deleteBtns = document.querySelectorAll(".delete-button");
+      for (let i = 0; i < deleteBtns.length; i++) {
+        const btn = deleteBtns[i];
+        btn.onclick = function (e) {
+          const todoId = e.target.dataset["id"];
+          fetch("/todos/" + todoId, {
+            method: "DELETE",
+          });
+          window.location.reload();
+        };
+      }
+      // Create a record in the database
       document.getElementById("form").onsubmit = function (e) {
         e.preventDefault();
         fetch("/todos/create", {
@@ -102,6 +119,7 @@
             "Content-Type": "application/json",
           },
         })
+          // After creating a record in the datase, Read and display it on the View
           .then(function (response) {
             return response.json();
           })
